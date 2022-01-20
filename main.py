@@ -64,6 +64,14 @@ def preprocessing(df_phis_leg, verbose =0):
     print(f'y.shape {y.shape}')
     return X, y
 
+def calculate_accuracy(y_train, train_conf, y_test, test_conf, model_name):
+    # computing the accuracy of the model performance
+    acc_train = accuracy_score(y_train, train_conf)
+    acc_test  = accuracy_score(y_test, test_conf)
+    print("{}: Accuracy on training Data: {:.3f}".format(model_name, acc_train))
+    print("{}: Accuracy on test Data: {:.3f}".format(model_name, acc_test))
+    return acc_train, acc_test
+
 if __name__ == "__main__":
     # prepare data
     dataset = build_dataset()
@@ -76,18 +84,17 @@ if __name__ == "__main__":
 
     # Decision Tree model
     # instantiate the model
-    tree = DecisionTreeClassifier(max_depth=5)
+    max_depth = 5
+    tree = DecisionTreeClassifier(max_depth=max_depth)
     # fit the model
     tree.fit(X_train, y_train)
     # predicting the target value from the model for the samples
     y_test_tree = tree.predict(X_test)
     y_train_tree = tree.predict(X_train)
     # computing the accuracy of the model performance
-    acc_train_tree = accuracy_score(y_train, y_train_tree)
-    acc_test_tree = accuracy_score(y_test, y_test_tree)
-    summary_table.add_row('Decision Tree', acc_train_tree, acc_test_tree, 10)
-    print("Decision Tree: Accuracy on training Data: {:.3f}".format(acc_train_tree))
-    print("Decision Tree: Accuracy on test Data: {:.3f}".format(acc_test_tree))
+    model_name = 'Decision Tree'
+    acc_train_tree, acc_test_tree = calculate_accuracy(y_train, y_train_tree, y_test, y_test_tree, model_name)
+    summary_table.add_row(model_name, acc_train_tree, acc_test_tree)
 
     # Multilayer Perceptrons model
     # instantiate the model
@@ -98,11 +105,9 @@ if __name__ == "__main__":
     y_test_mlp = mlp.predict(X_test)
     y_train_mlp = mlp.predict(X_train)
     # computing the accuracy of the model performance
-    acc_train_mlp = accuracy_score(y_train, y_train_mlp)
-    acc_test_mlp = accuracy_score(y_test, y_test_mlp)
-    summary_table.add_row('Multilayer Perceptrons', acc_train_mlp, acc_test_mlp)
-    print("Multilayer Perceptrons: Accuracy on training Data: {:.3f}".format(acc_train_mlp))
-    print("Multilayer Perceptrons: Accuracy on test Data: {:.3f}".format(acc_test_mlp))
+    model_name = 'Multilayer Perceptrons'
+    acc_train_mlp, acc_test_mlp = calculate_accuracy(y_train, y_train_mlp, y_test, y_test_mlp, model_name)
+    summary_table.add_row(model_name, acc_train_mlp, acc_test_mlp)
 
     # Random Forest
     # instantiate the model
@@ -117,17 +122,18 @@ if __name__ == "__main__":
     rf_clf = RandomForestClassifier(max_depth=clf.best_params_['max_depth'],
                                     n_estimators=clf.best_params_['n_estimators'])
     rf_clf.fit(X_train, y_train)
-
     # Making predictions
     test_conf = rf_clf.predict(X_test)
     train_conf = rf_clf.predict(X_train)
 
     # computing the accuracy of the model performance
-    acc_train_rf = accuracy_score(y_train, train_conf)
-    acc_test_rf = accuracy_score(y_test, test_conf)
-    summary_table.add_row('Random Forest', acc_train_rf, acc_test_rf, clf.best_params_['max_depth'], clf.best_params_['n_estimators'])
-    print("Random Forest: Accuracy on training Data: {:.3f}".format(acc_train_rf))
-    print("Random Forest: Accuracy on test Data: {:.3f}".format(acc_test_rf))
+    model_name = 'Random Forest'
+    acc_train_rf, acc_test_rf = calculate_accuracy(y_train, train_conf, y_test, test_conf, model_name)
+    # acc_train_rf = accuracy_score(y_train, train_conf)
+    # acc_test_rf = accuracy_score(y_test, test_conf)
+    summary_table.add_row(model_name, acc_train_rf, acc_test_rf, clf.best_params_['max_depth'], clf.best_params_['n_estimators'])
+    # print("Random Forest: Accuracy on training Data: {:.3f}".format(acc_train_rf))
+    # print("Random Forest: Accuracy on test Data: {:.3f}".format(acc_test_rf))
 
     summary_table.show()
 
