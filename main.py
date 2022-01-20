@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # computing the accuracy of the model performance
     model_name = 'Decision Tree'
     acc_train_tree, acc_test_tree = calculate_accuracy(y_train, y_train_tree, y_test, y_test_tree, model_name)
-    summary_table.add_row(model_name, acc_train_tree, acc_test_tree)
+    summary_table.add_row(model_name, acc_train_tree, acc_test_tree, max_depth)
 
     # Multilayer Perceptrons model
     # instantiate the model
