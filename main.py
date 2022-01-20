@@ -7,20 +7,25 @@ from collections import Counter
 from sklearn.preprocessing import LabelBinarizer
 from ModelSummaryTable import ModelSummaryTable
 
-def preprocessing(phis_file_path , lef_file_path):
+def build_dataset():
     # https://www.phishtank.com/developer_info.php
-    df_phishing = pd.read_csv(phis_file_path)
+    df_phishing = pd.read_csv('phishing_dataset.csv', names=["url"])
+    df_phishing = pd.concat([df_phishing, pd.read_csv('phising_tank.csv')[["url"]]])
     df_phishing["label"] = 1
+    df_phishing = df_phishing.drop_duplicates()
 
     # leg urls
-    df_leg_link = pd.read_csv(lef_file_path, names=["url"])
-    df_leg_link = df_leg_link.sample(n = len(df_phishing), random_state = 12).copy()
+    df_leg_link = pd.read_csv("Benign_list_big_final.csv", names=["url"])
+    df_leg_link = df_leg_link.sample(n=len(df_phishing), random_state=12).copy()
     df_leg_link = df_leg_link.reset_index(drop=True)
     df_leg_link["label"] = 0
 
     # concat
     df_phis_leg = pd.concat([df_phishing[["url", "label"]], df_leg_link])
-    df_phis_leg = df_phis_leg.reset_index()
+    return df_phis_leg.reset_index()
+
+def preprocessing(df_phis_leg):
+
 
     # feature extraction
     print("Begin features extraction")
@@ -40,7 +45,7 @@ def preprocessing(phis_file_path , lef_file_path):
 
     df[columns] = all_features
 
-    ext_relevant = [key for key, value in Counter(df["ext"]).items() if value > 100]
+    ext_relevant = [key for key, value in Counter(df["ext"]).items() if value > 500]
     df['ext_relevant'] = df['ext'].apply(lambda x: x if x in ext_relevant else 'general')
     df['ext_relevant'] = df['ext_relevant'].astype('category')
 
@@ -60,9 +65,13 @@ def preprocessing(phis_file_path , lef_file_path):
 
 if __name__ == "__main__":
     # prepare data
-    X, y = preprocessing('./phising_tank.csv','./Benign_list_big_final.csv')
+    dataset = build_dataset()
+    X, y = preprocessing(dataset)
     # Splitting the dataset into train and test sets: 80-20 split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)
+
+    # Models
+    summary_table = ModelSummaryTable()
 
     # Decision Tree model
     # instantiate the model
@@ -75,8 +84,12 @@ if __name__ == "__main__":
     # computing the accuracy of the model performance
     acc_train_tree = accuracy_score(y_train, y_train_tree)
     acc_test_tree = accuracy_score(y_test, y_test_tree)
+    summary_table.add_row('Decision Tree', acc_train_tree, acc_test_tree, 10)
     print("Decision Tree: Accuracy on training Data: {:.3f}".format(acc_train_tree))
     print("Decision Tree: Accuracy on test Data: {:.3f}".format(acc_test_tree))
+
+
+    summary_table.show()
 
 
 
