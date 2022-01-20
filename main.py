@@ -1,15 +1,15 @@
 import pandas as pd
-from tqdm.notebook import tqdm
+# from tqdm import tqdm
 from features_extractor import UrlFeaturizer
 from sklearn.model_selection import train_test_split
 
-def preprocessing():
+def preprocessing(phis_file_path , lef_file_path):
     # https://www.phishtank.com/developer_info.php
-    df_phishing = pd.read_csv('phising_tank.csv')
+    df_phishing = pd.read_csv(phis_file_path)
     df_phishing["label"] = 1
 
     # leg urls
-    df_leg_link = pd.read_csv('FinalDataset/URL/Benign_list_big_final.csv', names=["url"])
+    df_leg_link = pd.read_csv(lef_file_path, names=["url"])
     df_leg_link = df_leg_link.sample(n = len(df_phishing), random_state = 12).copy()
     df_leg_link = df_leg_link.reset_index(drop=True)
     df_leg_link["label"] = 0
@@ -19,22 +19,26 @@ def preprocessing():
     df_phis_leg = df_phis_leg.reset_index()
 
     # feature extraction
+    print("Begin feature extraction")
     url_features = UrlFeaturizer("www.google.com")
     features = url_features.run()
     all_features = []
     columns = list(features.keys())
     df = df_phis_leg.copy()
-    for i, row in tqdm(df.iterrows()):
+    for i, row in df.iterrows():
         url = row["url"]
         url_features = UrlFeaturizer(url)
         features = url_features.run()
         all_features.append(list(features.values()))
 
-    df[columns] = all_features
+        if i%1000 ==0 :
+            print(f'{i} iter')
 
+    df[columns] = all_features
+    print("End feature extraction")
     data = df.sample(frac=1).reset_index(drop=True)
     y = data['label']
-    X = data.drop(['label', "index", "url", "ext", "hasHttps"], axis=1)
+    X = data.drop(['label', "index", "url", "ext"], axis=1)
     print( f'X.shape {X.shape}')
     print(f'y.shape {y.shape}')
 
@@ -45,4 +49,4 @@ def preprocessing():
 
 if __name__ == "__main__":
     # prepare data
-    X_train, X_test, y_train, y_test = preprocessing()
+    X_train, X_test, y_train, y_test = preprocessing('./phising_tank.csv','./Benign_list_big_final.csv')

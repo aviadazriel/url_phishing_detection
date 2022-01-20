@@ -16,7 +16,7 @@ class UrlFeaturizer(object):
             self.whois = None
 
         try:
-            self.response = requests.get(self.url)
+            self.response = None #requests.get(self.url)
         except:
             self.response = None
 
@@ -132,7 +132,7 @@ class UrlFeaturizer(object):
         data['redirection'] = self.redirection()
         data['num_dash'] = self.num_dash()
         data['num_under_score'] = self.num_under_score()
-        data['ext'] = self.domainExtension()
+        data['ext'] = self.domain_extension()
         #         data['dsr'] = self.daysSinceRegistration()
         #         data['dse'] = self.days_since_expiration()
         return data
