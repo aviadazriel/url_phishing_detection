@@ -3,6 +3,9 @@ from features_extractor import UrlFeaturizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
+from collections import Counter
+from sklearn.preprocessing import LabelBinarizer
+
 def preprocessing(phis_file_path , lef_file_path):
     # https://www.phishtank.com/developer_info.php
     df_phishing = pd.read_csv(phis_file_path)
@@ -35,10 +38,21 @@ def preprocessing(phis_file_path , lef_file_path):
             print(f'(features extraction) {i} iter')
 
     df[columns] = all_features
+
+    ext_relevant = [key for key, value in Counter(df["ext"]).items() if value > 100]
+    df['ext_relevant'] = df['ext'].apply(lambda x: x if x in ext_relevant else 'general')
+    df['ext_relevant'] = df['ext_relevant'].astype('category')
+
+    df_ext_onehot_sklearn = df.copy()
+    lb = LabelBinarizer()
+    lb_results = lb.fit_transform(df_ext_onehot_sklearn['ext_relevant'])
+    lb_results_df = pd.DataFrame(lb_results, columns=lb.classes_)
+
+    result_df = pd.concat([df, lb_results_df], axis=1)
     print("End features extraction")
-    data = df.sample(frac=1).reset_index(drop=True)
+    data = result_df.sample(frac=1).reset_index(drop=True)
     y = data['label']
-    X = data.drop(['label', "index", "url", "ext"], axis=1)
+    X = data.drop(['label', "index", "url", "ext","ext_relevant"], axis=1)
     print( f'X.shape {X.shape}')
     print(f'y.shape {y.shape}')
     return X, y
