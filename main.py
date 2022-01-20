@@ -7,7 +7,6 @@ from collections import Counter
 from sklearn.preprocessing import LabelBinarizer
 from ModelSummaryTable import ModelSummaryTable
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 
@@ -105,9 +104,6 @@ if __name__ == "__main__":
     print("Multilayer Perceptrons: Accuracy on training Data: {:.3f}".format(acc_train_mlp))
     print("Multilayer Perceptrons: Accuracy on test Data: {:.3f}".format(acc_test_mlp))
 
-    class_report = classification_report(y_test, y_test_mlp)
-    print(class_report)
-
     # Random Forest
     # instantiate the model
     param_grid = {
@@ -118,7 +114,6 @@ if __name__ == "__main__":
     clf = GridSearchCV(estimator=rf, param_grid=param_grid, scoring='roc_auc')
     # fit thr model
     clf.fit(X_train, y_train)
-
     rf_clf = RandomForestClassifier(max_depth=clf.best_params_['max_depth'],
                                     n_estimators=clf.best_params_['n_estimators'])
     rf_clf.fit(X_train, y_train)
@@ -127,13 +122,12 @@ if __name__ == "__main__":
     test_conf = rf_clf.predict(X_test)
     train_conf = rf_clf.predict(X_train)
 
-    print("Random Forest")
-    # Confusion Matrix and classification report
-    test_conf_matrix = confusion_matrix(y_test, test_conf)
-    class_report = classification_report(y_test, test_conf)
-    print(test_conf_matrix)
-    print(class_report)
-    summary_table.add_row('Random Forest', 1, 2, clf.best_params_['max_depth'], clf.best_params_['n_estimators'])
+    # computing the accuracy of the model performance
+    acc_train_rf = accuracy_score(y_train, train_conf)
+    acc_test_rf = accuracy_score(y_test, test_conf)
+    summary_table.add_row('Random Forest', acc_train_rf, acc_test_rf, clf.best_params_['max_depth'], clf.best_params_['n_estimators'])
+    print("Random Forest: Accuracy on training Data: {:.3f}".format(acc_train_rf))
+    print("Random Forest: Accuracy on test Data: {:.3f}".format(acc_test_rf))
 
     summary_table.show()
 
