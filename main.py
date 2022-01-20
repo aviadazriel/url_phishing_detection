@@ -28,9 +28,7 @@ def build_dataset():
     df_phis_leg = pd.concat([df_phishing[["url", "label"]], df_leg_link])
     return df_phis_leg.reset_index()
 
-def preprocessing(df_phis_leg):
-
-
+def preprocessing(df_phis_leg, verbose =0):
     # feature extraction
     print("Begin features extraction")
     url_features = UrlFeaturizer("www.google.com")
@@ -44,7 +42,7 @@ def preprocessing(df_phis_leg):
         features = url_features.run()
         all_features.append(list(features.values()))
 
-        if i%2000 ==0 :
+        if i%2000 ==0 and verbose == 1:
             print(f'(features extraction) {i} iter')
 
     df[columns] = all_features
@@ -129,6 +127,7 @@ if __name__ == "__main__":
     test_conf = rf_clf.predict(X_test)
     train_conf = rf_clf.predict(X_train)
 
+    print("Random Forest")
     # Confusion Matrix and classification report
     test_conf_matrix = confusion_matrix(y_test, test_conf)
     class_report = classification_report(y_test, test_conf)
