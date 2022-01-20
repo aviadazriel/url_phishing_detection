@@ -6,13 +6,13 @@ from sklearn.metrics import accuracy_score
 
 def build_dataset():
     # https://www.phishtank.com/developer_info.php
-    df_phishing = pd.read_csv('phishing_dataset.csv', names=["url"])
-    df_phishing = pd.concat([df_phishing, pd.read_csv('phising_tank.csv')[["url"]]])
+    df_phishing = pd.read_csv('files/phishing_dataset.csv', names=["url"])
+    df_phishing = pd.concat([df_phishing, pd.read_csv('files/phising_tank.csv')[["url"]]])
     df_phishing["label"] = 1
     df_phishing = df_phishing.drop_duplicates()
 
     # leg urls
-    df_leg_link = pd.read_csv("Benign_list_big_final.csv", names=["url"])
+    df_leg_link = pd.read_csv("files/Benign_list_big_final.csv", names=["url"])
     df_leg_link = df_leg_link.sample(n=len(df_phishing), random_state=12).copy()
     df_leg_link = df_leg_link.reset_index(drop=True)
     df_leg_link["label"] = 0
