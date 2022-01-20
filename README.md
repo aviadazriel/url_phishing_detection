@@ -1,2 +1,4 @@
-# url_phishing_detection-
-URL Phishing Detection
+# URL Phishing Detection
+Decision Tree
+Multilayer Perceptrons
+Ranfom Forest
