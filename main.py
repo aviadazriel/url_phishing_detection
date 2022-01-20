@@ -1,4 +1,3 @@
-
 import pandas as pd
 from tqdm.notebook import tqdm
 from features_extractor import UrlFeaturizer
@@ -44,6 +43,6 @@ def preprocessing():
 
     return X_train, X_test, y_train, y_test
 
-if __name__ == 'main':
+if __name__ == "__main__":
     # prepare data
     X_train, X_test, y_train, y_test = preprocessing()
