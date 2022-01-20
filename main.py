@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from collections import Counter
 from sklearn.preprocessing import LabelBinarizer
+from ModelSummaryTable import ModelSummaryTable
 
 def preprocessing(phis_file_path , lef_file_path):
     # https://www.phishtank.com/developer_info.php
@@ -76,6 +77,9 @@ if __name__ == "__main__":
     acc_test_tree = accuracy_score(y_test, y_test_tree)
     print("Decision Tree: Accuracy on training Data: {:.3f}".format(acc_train_tree))
     print("Decision Tree: Accuracy on test Data: {:.3f}".format(acc_test_tree))
+
+
+
 
 
 
