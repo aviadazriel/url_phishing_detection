@@ -117,6 +117,9 @@ class UrlFeaturizer(object):
     def num_dots(self):
         return self.url.count('.')
 
+    def get_page_rank(self):
+        raise NotImplementedError
+
     def run(self):
         data = {}
 

@@ -1,8 +1,8 @@
 import pandas as pd
-# from tqdm import tqdm
 from features_extractor import UrlFeaturizer
 from sklearn.model_selection import train_test_split
-
+from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier
 def preprocessing(phis_file_path , lef_file_path):
     # https://www.phishtank.com/developer_info.php
     df_phishing = pd.read_csv(phis_file_path)
@@ -19,7 +19,7 @@ def preprocessing(phis_file_path , lef_file_path):
     df_phis_leg = df_phis_leg.reset_index()
 
     # feature extraction
-    print("Begin feature extraction")
+    print("Begin features extraction")
     url_features = UrlFeaturizer("www.google.com")
     features = url_features.run()
     all_features = []
@@ -31,22 +31,37 @@ def preprocessing(phis_file_path , lef_file_path):
         features = url_features.run()
         all_features.append(list(features.values()))
 
-        if i%1000 ==0 :
-            print(f'{i} iter')
+        if i%2000 ==0 :
+            print(f'(features extraction) {i} iter')
 
     df[columns] = all_features
-    print("End feature extraction")
+    print("End features extraction")
     data = df.sample(frac=1).reset_index(drop=True)
     y = data['label']
     X = data.drop(['label', "index", "url", "ext"], axis=1)
     print( f'X.shape {X.shape}')
     print(f'y.shape {y.shape}')
-
-    # Splitting the dataset into train and test sets: 80-20 split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)
-
-    return X_train, X_test, y_train, y_test
+    return X, y
 
 if __name__ == "__main__":
     # prepare data
-    X_train, X_test, y_train, y_test = preprocessing('./phising_tank.csv','./Benign_list_big_final.csv')
+    X, y = preprocessing('./phising_tank.csv','./Benign_list_big_final.csv')
+    # Splitting the dataset into train and test sets: 80-20 split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)
+
+    # Decision Tree model
+    # instantiate the model
+    tree = DecisionTreeClassifier(max_depth=5)
+    # fit the model
+    tree.fit(X_train, y_train)
+    # predicting the target value from the model for the samples
+    y_test_tree = tree.predict(X_test)
+    y_train_tree = tree.predict(X_train)
+    # computing the accuracy of the model performance
+    acc_train_tree = accuracy_score(y_train, y_train_tree)
+    acc_test_tree = accuracy_score(y_test, y_test_tree)
+    print("Decision Tree: Accuracy on training Data: {:.3f}".format(acc_train_tree))
+    print("Decision Tree: Accuracy on test Data: {:.3f}".format(acc_test_tree))
+
+
+
